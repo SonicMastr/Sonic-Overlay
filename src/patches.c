@@ -44,7 +44,6 @@ VertexColor      *colorVertices = NULL;
 static SceUInt16	*indices, *colorIndices = NULL;
 
 SceBool drawing, active, isWithinScene = SCE_FALSE;
-SceBool screenIsOn = SCE_TRUE;
 
 /*static SceGxmContext *lastContext = NULL;
 static unsigned int lastFlags;
@@ -246,28 +245,6 @@ SceGxmErrorCode sceGxmShaderPatcherCreate_overlay(const SceGxmShaderPatcherParam
 	
 }
 
-/*SceGxmErrorCode sceGxmColorSurfaceInit_overlay(
-	SceGxmColorSurface *surface,
-	SceGxmColorFormat colorFormat,
-	SceGxmColorSurfaceType surfaceType,
-	SceGxmColorSurfaceScaleMode scaleMode,
-	SceGxmOutputRegisterSize outputRegisterSize,
-	uint32_t width,
-	uint32_t height,
-	uint32_t strideInPixels,
-	void *data)
-{
-	SceGxmErrorCode ret = 0;
-
-	ret = TAI_CONTINUE(SceGxmErrorCode, hook_ref[3], surface, colorFormat, surfaceType, scaleMode, outputRegisterSize, width, height, strideInPixels, data);
-
-	if (width == 960 && height == 544 && cSurfaceIndex < 2) {
-		displaySurface[cSurfaceIndex] = surface;
-	}
-
-	return ret;
-}*/
-
 int sceSharedFbUpdateProcessEnd_overlay(SceUID masterShfbId)
 {
 	if (cContext != NULL) {
@@ -323,9 +300,7 @@ int sceSharedFbUpdateProcessEnd_overlay(SceUID masterShfbId)
 			sceGxmEndScene(cContext, NULL, NULL);
 	}
 
-	int ret = TAI_CONTINUE(SceGxmErrorCode, hook_ref[4], masterShfbId);
-
-	return ret;
+	return TAI_CONTINUE(SceGxmErrorCode, hook_ref[4], masterShfbId);;
 }
 
 int sceSharedFbUpdateProcessBegin_overlay(SceUID shared_fb_id, void *a2, void *a3)
