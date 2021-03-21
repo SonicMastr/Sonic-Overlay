@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.19)
 
 set(CMAKE_TOOLCHAIN_FILE "$ENV{SCE_PSP2_SDK_DIR}/host_tools/build/cmake/psp2-snc-toolchain.cmake")
 
-project(sonicoverlay LANGUAGES C)
+project(soForVsh LANGUAGES C)
 
 include(VitaDevelopmentSuite)
 enable_language(EMD)
@@ -22,6 +22,7 @@ include_directories(SYSTEM
   ${VDSUITE_USER_INCLUDE_DIRECTORIES}
   ${VDSUITE_STANDARD_INCLUDE_DIRECTORIES}
   include
+  ../SO_include_common
 )
 
 link_directories(
@@ -75,7 +76,7 @@ endforeach()
 
 add_library(${PROJECT_NAME} MODULE
   ${SHADER_OBJECTS}
-  sonicoverlay.emd
+  soForVsh.emd
   src/main.c
   src/hooks.c
   src/patches.c

@@ -69,6 +69,7 @@ int sceSysmoduleLoadModuleInternalWithArg_patched(SceSysmoduleInternalModuleId i
 		hook_paf();
 		hook[7] = HOOK(7, 0xCD20EF38, scePafWidgetSetColor_patched);
 		hook[8] = HOOK(8, 0xE29AB31F, scePafWidgetSetPosition_patched);
+		taiHookRelease(hook[0], hook_ref[0]);
 	}
 	return res;
 }
