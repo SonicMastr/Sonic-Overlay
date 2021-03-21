@@ -85,6 +85,7 @@ add_library(${PROJECT_NAME} MODULE
 target_link_libraries(${PROJECT_NAME}
   taihen_stub_weak
   taihenModuleUtils_stub_weak
+  SceSharedFb_stub_weak
   SceGxmInternal_stub_weak
   SceGxm_stub_weak
   SceDbg_stub_weak

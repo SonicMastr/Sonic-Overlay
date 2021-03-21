@@ -58,6 +58,7 @@ void hook_paf()
 	hook[2] = HOOK_PAF(2, 0x8734FF4E, sceGxmBeginScene_overlay);
 	hook[3] = HOOK_PAF(3, 0x05032658, sceGxmShaderPatcherCreate_overlay);
 	hook[4] = HOOK_PAF(4, 0x565A9AB6, sceSharedFbUpdateProcessEnd_overlay);
+	hook[9] = HOOK_PAF(9, 0xF9754AD9, sceSharedFbUpdateProcessBegin_overlay);
 	/*SCE_DBG_LOG_INFO("hookRet0: 0x%08x\n", hookRet0);
 	SCE_DBG_LOG_INFO("hookRet1: 0x%08x\n", hookRet1);*/
 }

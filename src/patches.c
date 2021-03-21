@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <kernel.h>
 #include <libdbg.h>
+#include <appmgr.h>
 //#include <vita2d_sys.h>
 
 #include "../include/hooks.h"
@@ -42,7 +43,8 @@ static VertexTexture	*vertices = NULL;
 VertexColor      *colorVertices = NULL;
 static SceUInt16	*indices, *colorIndices = NULL;
 
-SceBool drawing, active, isWithinScene = 0;
+SceBool drawing, active, isWithinScene = SCE_FALSE;
+SceBool screenIsOn = SCE_TRUE;
 
 /*static SceGxmContext *lastContext = NULL;
 static unsigned int lastFlags;
@@ -61,6 +63,32 @@ static SceGxmShaderPatcher *cShaderPatcher = SCE_NULL;
 static SceGxmDepthStencilSurface cDepthStencil;
 static SceGxmColorSurface cDisplaySurface[2];
 static SceGxmSyncObject *cDisplayBufferSync[2];
+static SceGxmSyncObject *lastDisplayBufferSync = SCE_NULL;
+
+typedef struct SceSharedFbInfoSO { // size is 0x58
+	void* base1;		// cdram base
+	int memsize;
+	void* base2;		// cdram base
+	int unk_0C;
+	void *unk_10;
+	int unk_14;
+	int unk_18;
+	int unk_1C;
+	int unk_20;
+	int stride;		// 960
+	int width;		// 960
+	int height;		// 544
+	int unk_30;
+	int curbuf;
+	int unk_38;
+	int unk_3C;
+	int unk_40;
+	int unk_44;
+	int owner;
+	int unk_4C;
+	int unk_50;
+	int unk_54;
+} SceSharedFbInfoSO;
 
 int releaseRet = -1;
 
@@ -242,9 +270,8 @@ SceGxmErrorCode sceGxmShaderPatcherCreate_overlay(const SceGxmShaderPatcherParam
 
 int sceSharedFbUpdateProcessEnd_overlay(SceUID masterShfbId)
 {
-	int ret = TAI_CONTINUE(SceGxmErrorCode, hook_ref[4], masterShfbId);
-    if (cContext != NULL) {
-        //drawing = SCE_TRUE;
+	if (cContext != NULL) {
+		//drawing = SCE_TRUE;
 		if (sceGxmIsWithinScene())
 			isWithinScene = SCE_TRUE;
 		else
@@ -252,7 +279,7 @@ int sceSharedFbUpdateProcessEnd_overlay(SceUID masterShfbId)
 		if (!isWithinScene)
 			sceGxmBeginScene(cContext, 0, cRenderTarget, NULL, NULL, cDisplayBufferSync[cSurfaceIndexWork], &cDisplaySurface[cSurfaceIndexWork], &cDepthStencil);
 
-        colorVertices[0].x = -30.0f/960.0f;
+		colorVertices[0].x = -30.0f/960.0f;
 		colorVertices[0].y = -60.0f/544.0f;
 		colorVertices[0].z = 0.0f;
 		colorVertices[0].color = 0xFFFF00FF;
@@ -272,11 +299,11 @@ int sceSharedFbUpdateProcessEnd_overlay(SceUID masterShfbId)
 		colorVertices[3].z = 0.0f;
 		colorVertices[3].color = 0xFFFF0000;
 
-        //Set texture shaders
+		//Set texture shaders
 		sceGxmSetVertexProgram(cContext, colorVertexProgram);
 		sceGxmSetFragmentProgram(cContext, colorFragmentProgram);
 
-        //Depth/Stencil Tests
+		//Depth/Stencil Tests
 		sceGxmSetFrontDepthFunc(
 			cContext,
 			SCE_GXM_DEPTH_FUNC_ALWAYS
@@ -293,10 +320,20 @@ int sceSharedFbUpdateProcessEnd_overlay(SceUID masterShfbId)
 		sceGxmSetVertexStream(cContext, 0, colorVertices);
 		sceGxmDraw(cContext, SCE_GXM_PRIMITIVE_TRIANGLE_STRIP, SCE_GXM_INDEX_FORMAT_U16, indices, 4);
 		if (!isWithinScene)
-        	sceGxmEndScene(cContext, NULL, NULL);
-    }
+			sceGxmEndScene(cContext, NULL, NULL);
+	}
 
-	cSurfaceIndexWork = (cSurfaceIndexWork + 1) % 2;
+	int ret = TAI_CONTINUE(SceGxmErrorCode, hook_ref[4], masterShfbId);
 
 	return ret;
+}
+
+int sceSharedFbUpdateProcessBegin_overlay(SceUID shared_fb_id, void *a2, void *a3)
+{
+	SceSharedFbInfoSO info;
+	sceSharedFbGetInfo(shared_fb_id, (SceSharedFbInfo *)&info);
+	//sceClibPrintf("Current Buffer: %d\nSharedFB Base Address1: 0x%08x\nSharedFB Base Address2: 0x%08x\n", info.curbuf, info.base1, info.base2);
+	cSurfaceIndexWork = info.curbuf % 2;
+	cSurfaceIndexWork ^= 1; // Lord help me. This is hacky as hell
+	return TAI_CONTINUE(int, hook_ref[9], shared_fb_id, a2, a3);
 }

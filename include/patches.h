@@ -34,4 +34,6 @@ int sceSharedFbUpdateProcessEnd_overlay(SceUID masterShfbId);
 
 SceGxmErrorCode sceGxmCreateRenderTargetInternal_overlay(const SceGxmRenderTargetParams *params, SceGxmRenderTarget **renderTarget);
 
+int sceSharedFbUpdateProcessBegin_overlay(SceUID shared_fb_id, void *a2, void *a3);
+
 #endif /* PATCHES_H_ */

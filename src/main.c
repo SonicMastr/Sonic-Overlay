@@ -19,7 +19,7 @@ extern int releaseRet;
 int initThreadEntry(SceUInt32 args, void* argp)
 {
 	while (1) {
-		sceClibPrintf("hook ret: 0x%X\n", releaseRet);
+		sceClibPrintf("Surface: %d\n", releaseRet);
 		sceKernelDelayThread(100000);
 	}
 }
