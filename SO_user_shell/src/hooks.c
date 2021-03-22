@@ -92,9 +92,36 @@ int sceSblPmMgrGetCurrentMode_patched(int *mode)
 
 SceInt initHooks(void)
 {
+	int add_red_widget_offset;
 	tai_module_info_t info;
 	info.size = sizeof(info);
 	taiGetModuleInfo("SceShell", &info);
+
+	switch(info.module_nid) {
+		case 0x0552F692: // 3.60 retail
+		case 0x532155E5: // 3.61 retail
+		case 0xBB4B0A3E: // 3.63 retail
+			add_red_widget_offset = 0x14F466;
+			break;
+		case 0x5549BF1F: // 3.65 retail
+		case 0x34B4D82E: // 3.67 retail
+		case 0x12DAC0F3: // 3.68 retail
+		case 0x0703C828: // 3.69 retail
+		case 0x2053B5A5: // 3.70 retail
+		case 0xF476E785: // 3.71 retail
+		case 0x939FFBE9: // 3.72 retail
+		case 0x734D476A: // 3.73 retail
+			add_red_widget_offset = 0x14F4BE;
+			break;
+		case 0xEAB89D5C: // 3.60 testkit
+			add_red_widget_offset = 0x14789A;
+			break;
+		case 0x587F9CED: // 3.65 testkit
+			add_red_widget_offset = 0x1478F2;
+			break;
+		default:
+			return -1;
+	}
 
 	hook[0] = HOOK(0, 0xC3C26339, sceSysmoduleLoadModuleInternalWithArg_patched);
 	hook[5] = HOOK(5, 0xDA4EDEBF, sceSblPmMgrGetCurrentMode_patched);
@@ -102,9 +129,9 @@ SceInt initHooks(void)
 	hook[6] = taiHookFunctionOffset(
 		&hook_ref[6], 
 		info.modid,
-		0,          // segidx
-		0x14F466, //0x1478f2 DEX,   // offset
-		1,          // thumb
+		0,
+		add_red_widget_offset,
+		1,
 		add_red_widgets);
 
     //SCE_DBG_LOG_INFO("PAF modstart hook: 0x%08x\n", pafColorHook);
