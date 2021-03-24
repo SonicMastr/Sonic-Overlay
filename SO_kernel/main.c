@@ -6,7 +6,7 @@
 
 #include "so_interface_common.h"
 
-static char tempArgBlock[128];
+static char tempArgBlock[32];
 static SoDispatch currentDispatch;
 static SceKernelFastMutexWork reqMtx;
 static SceKernelFastMutexWork freeMtx;
