@@ -35,7 +35,7 @@ endforeach()
 
 foreach(gxp ${SHADER_GXPS})
 	get_filename_component(gxp_we ${gxp} NAME_WE)
-	add_custom_command(OUTPUT "${gxp_we}_gxp.o"
+	add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/${gxp_we}_gxp.o"
 		COMMAND $ENV{SCE_PSP2_SDK_DIR}/host_tools/build/bin/psp2bin "${gxp}"
       -b2e PSP2,_binary_${gxp_we}_gxp_start,_binary_${gxp_we}_gxp_size,4 -o "${CMAKE_BINARY_DIR}/${gxp_we}_gxp.o"
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
