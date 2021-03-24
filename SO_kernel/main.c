@@ -1,3 +1,11 @@
+/**
+ * This file is a part of Sonic Overlay Kernel
+ *
+ * Fast, GXM Accelerated Overlays on the PSVita
+ *
+ * Copyright (c) SonicMastr, GrapheneCt 2021
+ */
+
 #include <stddef.h>
 #include <scetypes.h>
 #include <kernel.h>
@@ -6,13 +14,13 @@
 
 #include "so_interface_common.h"
 
-static char tempArgBlock[32];
+static char tempArgBlock[128];
 static SoDispatch currentDispatch;
 static SceKernelFastMutexWork reqMtx;
 static SceKernelFastMutexWork freeMtx;
 static SceBool dispatchPending = SCE_FALSE;
 
-SceBool soPeekDispatchForUser(SceSize *pArgBlockSize)
+SceBool soPeekDispatchForVsh(SceSize *pArgBlockSize)
 {
 	if (dispatchPending) {
 		sceKernelMemcpyKernelToUser(pArgBlockSize, &currentDispatch.argBlockSize, sizeof(SceSize));
@@ -20,19 +28,20 @@ SceBool soPeekDispatchForUser(SceSize *pArgBlockSize)
 	}
 	else
 		return SCE_FALSE;
+	return SCE_FALSE;
 }
 
-SceBool soWaitDispatchForUser(SceSize *pArgBlockSize)
+SceBool soWaitDispatchForVsh(SceSize *pArgBlockSize)
 {
 	sceKernelLockFastMutex(&freeMtx);
 	sceKernelMemcpyKernelToUser(pArgBlockSize, &currentDispatch.argBlockSize, sizeof(SceSize));
 	sceKernelUnlockFastMutex(&freeMtx);
 }
 
-SceVoid soGetDispatchForUser(SoDispatch *pDispatch)
+SceVoid soGetDispatchForVsh(SoDispatch *pDispatch)
 {
 	sceKernelMemcpyKernelToUser(pDispatch, &currentDispatch, (sizeof(SoDispatch) - sizeof(ScePVoid)));
-	sceKernelMemcpyKernelToUser(pDispatch->pArgBlock, &currentDispatch.pArgBlock, currentDispatch.argBlockSize);
+	//sceKernelMemcpyKernelToUser(pDispatch->pArgBlock, currentDispatch.pArgBlock, currentDispatch.argBlockSize);
 	dispatchPending = SCE_FALSE;
 	sceKernelUnlockFastMutex(&reqMtx);
 	sceKernelLockFastMutex(&freeMtx);

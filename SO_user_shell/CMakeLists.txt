@@ -83,6 +83,7 @@ target_link_libraries(${PROJECT_NAME}
   SceSysmem_stub_weak
   SceLibKernel_stub_weak
   SceThreadmgr_stub_weak
+  soForKernel_stub
 )
 
 VDSuiteSignElf(${PROJECT_NAME}.suprx ${PROJECT_NAME})
