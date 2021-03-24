@@ -1,15 +1,9 @@
-cmake_minimum_required(VERSION 3.19)
 
-set(CMAKE_TOOLCHAIN_FILE "$ENV{SCE_PSP2_SDK_DIR}/host_tools/build/cmake/psp2-snc-toolchain.cmake")
+project(soForKernel LANGUAGES C)
 
-project(soForKernel)
-
-include(VitaDevelopmentSuite)
-enable_language(EMD)
-set(CMAKE_C_STANDARD 99)
-
-add_compile_options(
-  -Xdiag=0 -Xquit=2 -O3
+add_library(${PROJECT_NAME} STATIC
+  main.c
+  soForKernel.emd
 )
 
 include_directories(
@@ -17,16 +11,12 @@ include_directories(
   ../SO_include_common
 )
 
-link_directories(
+target_link_directories(${PROJECT_NAME}
+  PRIVATE
   ${VDSUITE_LIBRARY_DIRECTORIES}
 )
 
 VDSuiteCreateStubs(stubs soForKernel.emd
   LIBRARIES
     soForKernel_stub
-)
-
-add_library(${PROJECT_NAME} STATIC
-  main.c
-  soForKernel.emd
 )

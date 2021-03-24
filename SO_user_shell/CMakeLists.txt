@@ -1,34 +1,5 @@
-cmake_minimum_required(VERSION 3.19)
-
-set(CMAKE_TOOLCHAIN_FILE "$ENV{SCE_PSP2_SDK_DIR}/host_tools/build/cmake/psp2-snc-toolchain.cmake")
 
 project(soForVsh LANGUAGES C)
-
-include(VitaDevelopmentSuite)
-enable_language(EMD)
-set(CMAKE_C_STANDARD 99)
-
-add_compile_options(
-  -Xdiag=0 -Xquit=2
-)
-
-add_link_options(
-  --prx-no-runtime-support
-  --strip-unused-data
-  --strip-duplicates
-)
-
-include_directories(SYSTEM
-  ${VDSUITE_USER_INCLUDE_DIRECTORIES}
-  ${VDSUITE_STANDARD_INCLUDE_DIRECTORIES}
-  include
-  ../SO_include_common
-)
-
-link_directories(
-  ${VDSUITE_LIBRARY_DIRECTORIES}
-)
-
 
 set(VERTEX_SHADERS
   shaders/texture_v.cg
@@ -71,7 +42,7 @@ foreach(gxp ${SHADER_GXPS})
 		DEPENDS ${gxp}
 		COMMENT "Objcopying ${gxp} to ${gxp_we}_gxp.o"
 	)
-	list(APPEND SHADER_OBJECTS "${gxp_we}_gxp.o")
+	list(APPEND SHADER_OBJECTS "${CMAKE_BINARY_DIR}/${gxp_we}_gxp.o")
 endforeach()
 
 add_library(${PROJECT_NAME} MODULE
@@ -81,6 +52,25 @@ add_library(${PROJECT_NAME} MODULE
   src/hooks.c
   src/patches.c
   src/memUtil.c
+)
+
+target_link_options(${PROJECT_NAME}
+  PRIVATE
+  --prx-no-runtime-support
+  --strip-unused-data
+  --strip-duplicates
+)
+
+include_directories(SYSTEM
+  ${VDSUITE_USER_INCLUDE_DIRECTORIES}
+  ${VDSUITE_STANDARD_INCLUDE_DIRECTORIES}
+  include
+  ../SO_include_common
+)
+
+target_link_directories(${PROJECT_NAME}
+  PRIVATE
+  ${VDSUITE_LIBRARY_DIRECTORIES}
 )
 
 target_link_libraries(${PROJECT_NAME}
