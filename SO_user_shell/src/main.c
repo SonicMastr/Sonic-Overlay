@@ -12,23 +12,43 @@
 #include <kernel.h>
 #include <libdbg.h>
 
-#include "../include/common.h"
-#include "../include/hooks.h"
-extern int releaseRet;
+#include "common.h"
+#include "hooks.h"
+#include "so_interface_common.h"
 
-int initThreadEntry(SceUInt32 args, void* argp)
+extern int releaseRet;
+static char tempArgBlock[100];
+static SoDispatch currentDispatch;
+
+int soDispatchGetter(SceUInt32 args, void* argp)
 {
+	SceSize argBlockSize;
+
+	sceKernelDelayThread(15000000);
+
 	while (1) {
-		sceClibPrintf("Surface: %d\n", releaseRet);
-		sceKernelDelayThread(100000);
+		if (soPeekDispatchForVsh(&argBlockSize)) {
+
+			currentDispatch.pArgBlock = tempArgBlock;
+
+			soGetDispatchForVsh(&currentDispatch);
+
+			sceClibPrintf("argBlockSize: %d\n", argBlockSize);
+			sceClibPrintf("a1: %d\n", *(SceInt32 *)&tempArgBlock[0]);
+			sceClibPrintf("a2: %d\n", *(SceInt32 *)&tempArgBlock[4]);
+		}
+		else
+			sceKernelDelayThread(15000);
 	}
 }
 
 int module_start(SceSize argc, void *args) {
 	SCE_DBG_LOG_INFO("Sonic Overlay Started\n");
 
-	//SceUID initThread = sceKernelCreateThread("SOInitThread", initThreadEntry, 191, 0x1000, 0, 0, NULL);
-	//sceKernelStartThread(initThread, 0, NULL);
+	sceClibMemset(tempArgBlock, 0, 100);
+
+	SceUID dgThread = sceKernelCreateThread("SODispatchGetter", soDispatchGetter, 160, 0x1000, 0, 0, NULL);
+	sceKernelStartThread(dgThread, 0, NULL);
 
 	initHooks();
 	return SCE_KERNEL_START_SUCCESS;

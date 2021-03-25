@@ -7,6 +7,6 @@ Library: soForKernel attr: syscall_export
 Library: soForKernel version: 1
 Library: soForKernel stubfile: "soForKernel_stub"
 Library: soForKernel nidsuffix: ""
-Library: soForKernel function: soPeekDispatchForUser
-Library: soForKernel function: soWaitDispatchForUser
-Library: soForKernel function: soGetDispatchForUser
+Library: soForKernel function: soPeekDispatchForVsh
+Library: soForKernel function: soWaitDispatchForVsh
+Library: soForKernel function: soGetDispatchForVsh

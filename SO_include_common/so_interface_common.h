@@ -16,4 +16,10 @@ typedef struct SoDispatch {
 	ScePVoid pArgBlock;
 } SoDispatch;
 
+/* KERNEL */
+
+SceBool soPeekDispatchForVsh(SceSize *pArgBlockSize);
+SceBool soWaitDispatchForVsh(SceSize *pArgBlockSize);
+SceVoid soGetDispatchForVsh(SoDispatch *pDispatch);
+
 #endif
