@@ -40,7 +40,7 @@ foreach(gxp ${SHADER_GXPS})
       -b2e PSP2,_binary_${gxp_we}_gxp_start,_binary_${gxp_we}_gxp_size,4 -o "${CMAKE_BINARY_DIR}/${gxp_we}_gxp.o"
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
 		DEPENDS ${gxp}
-		COMMENT "Objcopying ${gxp} to ${gxp_we}_gxp.o"
+		COMMENT "Building GXP object ${gxp_we}_gxp.o"
 	)
 	list(APPEND SHADER_OBJECTS "${CMAKE_BINARY_DIR}/${gxp_we}_gxp.o")
 endforeach()
@@ -86,3 +86,5 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 VDSuiteSignElf(${PROJECT_NAME}.suprx ${PROJECT_NAME})
+
+set_property(DIRECTORY ${CMAKE_BINARY_DIR} PROPERTY ADDITIONAL_CLEAN_FILES "${SHADER_GXPS}") # Clean target doesn't handle this automatically
