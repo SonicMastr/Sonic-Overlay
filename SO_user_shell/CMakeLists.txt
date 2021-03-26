@@ -54,13 +54,6 @@ add_library(${PROJECT_NAME} MODULE
   src/memUtil.c
 )
 
-target_link_options(${PROJECT_NAME}
-  PRIVATE
-  --prx-no-runtime-support
-  --strip-unused-data
-  --strip-duplicates
-)
-
 include_directories(SYSTEM
   ${VDSUITE_USER_INCLUDE_DIRECTORIES}
   ${VDSUITE_STANDARD_INCLUDE_DIRECTORIES}
@@ -83,9 +76,9 @@ target_link_libraries(${PROJECT_NAME}
   SceSysmem_stub_weak
   SceLibKernel_stub_weak
   SceThreadmgr_stub_weak
-  soForKernel_stub
+  ${CMAKE_CURRENT_BINARY_DIR}/../SO_kernel/stubs/libsoForVsh_stub.a
 )
 
-VDSuiteSignElf(${PROJECT_NAME}.suprx ${PROJECT_NAME})
+VDSuiteSignElf(${PROJECT_NAME}.suprx ${PROJECT_NAME} COMPRESS ON STRIP ON)
 
 set_property(DIRECTORY ${CMAKE_BINARY_DIR} PROPERTY ADDITIONAL_CLEAN_FILES "${SHADER_GXPS}") # Clean target doesn't handle this automatically
