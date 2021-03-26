@@ -40,11 +40,11 @@ SceBool soWaitDispatchForVsh(SceSize *pArgBlockSize)
 
 SceVoid soGetDispatchForVsh(SoDispatch *pDispatch)
 {
-	sceKernelMemcpyKernelToUser(pDispatch, &currentDispatch, (sizeof(SoDispatch) - sizeof(ScePVoid)));
-	//sceKernelMemcpyKernelToUser(pDispatch->pArgBlock, currentDispatch.pArgBlock, currentDispatch.argBlockSize);
+	//sceKernelMemcpyKernelToUser(pDispatch, &currentDispatch, (sizeof(SoDispatch) - sizeof(ScePVoid)));
+	sceKernelMemcpyKernelToUser(pDispatch->pArgBlock, currentDispatch.pArgBlock, currentDispatch.argBlockSize);
 	dispatchPending = SCE_FALSE;
-	sceKernelUnlockFastMutex(&reqMtx);
-	sceKernelLockFastMutex(&freeMtx);
+	/*sceKernelUnlockFastMutex(&reqMtx);
+	sceKernelLockFastMutex(&freeMtx);*/
 }
 
 SceVoid soTestDraw()
@@ -61,11 +61,18 @@ SceVoid soTestDraw()
 	sceKernelUnlockFastMutex(&freeMtx);
 }
 
-SceVoid soInitialize()
+int module_start(SceSize argc, void *args) 
 {
 	sceKernelInitializeFastMutex(&reqMtx, "SonicOverlayDispatchMtx", 0, 0);
 	sceKernelInitializeFastMutex(&freeMtx, "SonicOverlayFreeMtx", 0, 0);
 	sceKernelLockFastMutex(&freeMtx);
 
 	currentDispatch.pArgBlock = tempArgBlock;
+
+	return SCE_KERNEL_START_SUCCESS;
+}
+
+int module_stop(SceSize argc, const void *args) 
+{
+	return SCE_KERNEL_STOP_SUCCESS;
 }

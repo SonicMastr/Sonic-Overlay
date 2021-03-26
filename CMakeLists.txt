@@ -12,5 +12,12 @@ add_compile_options(
   -Xdiag=0 -Xquit=2
 )
 
+add_link_options(
+  --prx-no-runtime-support
+  --strip-unused-data
+  --strip-duplicates
+  --strip-report=strip-report.txt
+)
+
 add_subdirectory(SO_kernel)
 add_subdirectory(SO_user_shell)

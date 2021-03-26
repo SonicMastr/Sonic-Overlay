@@ -3,8 +3,6 @@
 
 #include <scetypes.h>
 
-SceVoid soInitialize();
-
 SceVoid soTestDraw();
 
 #endif

@@ -2,11 +2,17 @@ Module: soForKernel major_version: 1 minor_version: 0
 sceModuleInfo_type: 6
 module_function: module_start localname: module_start
 module_function: module_stop localname: module_stop
+Library: soForVsh attr: auto_export
+Library: soForVsh attr: syscall_export
+Library: soForVsh version: 1
+Library: soForVsh stubfile: "soForVsh_stub"
+Library: soForVsh nidsuffix: ""
+Library: soForVsh function: soPeekDispatchForVsh
+Library: soForVsh function: soWaitDispatchForVsh
+Library: soForVsh function: soGetDispatchForVsh
+
 Library: soForKernel attr: auto_export
-Library: soForKernel attr: syscall_export
 Library: soForKernel version: 1
 Library: soForKernel stubfile: "soForKernel_stub"
 Library: soForKernel nidsuffix: ""
-Library: soForKernel function: soPeekDispatchForVsh
-Library: soForKernel function: soWaitDispatchForVsh
-Library: soForKernel function: soGetDispatchForVsh
+Library: soForKernel function: soTestDraw

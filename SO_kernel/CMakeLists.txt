@@ -1,7 +1,7 @@
 
 project(soForKernel LANGUAGES C)
 
-add_library(${PROJECT_NAME} STATIC
+add_library(${PROJECT_NAME} MODULE
   main.c
   soForKernel.emd
 )
@@ -17,6 +17,11 @@ target_link_directories(${PROJECT_NAME}
   ${VDSUITE_LIBRARY_DIRECTORIES}
 )
 
+target_link_libraries(${PROJECT_NAME}
+  SceSysmemForDriver_stub
+  SceThreadmgrForDriver_stub
+)
+
 VDSuiteCreateStubs(stubs soForKernel.emd
   LIBRARIES
     soForKernel_stub
@@ -25,3 +30,5 @@ VDSuiteCreateStubs(stubs soForKernel.emd
 install(TARGETS ${PROJECT_NAME}
   DESTINATION ${VDSUITE_LIBRARY_DIRECTORIES}
 )
+
+VDSuiteSignElf(${PROJECT_NAME}.skprx ${PROJECT_NAME} COMPRESS ON STRIP ON)
