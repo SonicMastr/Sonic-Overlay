@@ -16,38 +16,50 @@
 #include "hooks.h"
 #include "so_interface_common.h"
 
+#define SCE_KERNEL_MEMORY_ACCESS_R_SHARED		0x10
+#define SCE_KERNEL_MEMORY_ACCESS_W_SHARED		0x30
+
 extern int releaseRet;
-static char tempArgBlock[100];
-static SoDispatch currentDispatch;
+static SceUID sharedMemoryId = SCE_UID_INVALID_UID;
+static ScePVoid sharedMemory = SCE_NULL;
+
 
 int soDispatchGetter(SceUInt32 args, void* argp)
 {
 	SceSize argBlockSize;
+	SoDispatch *currentDispatch = (SoDispatch *)sharedMemory;
 
-	sceKernelDelayThread(15000000);
+	sceKernelDelayThread(20000000);
 
 	while (1) {
-		if (soPeekDispatchForVsh(&argBlockSize)) {
+		soWaitDispatchForVsh();
 
-			currentDispatch.pArgBlock = tempArgBlock;
+		sceClibPrintf("argBlockSize: %d\n", currentDispatch->dispatchId);
+		sceClibPrintf("a1: %d\n", *(SceInt32 *)&currentDispatch->argBlock[0]);
+		sceClibPrintf("a2: %d\n", *(SceInt32 *)&currentDispatch->argBlock[4]);
 
-			soGetDispatchForVsh(&currentDispatch);
+		soDispatchDoneForVsh();
 
-			sceClibPrintf("argBlockSize: %d\n", argBlockSize);
-			sceClibPrintf("a1: %d\n", *(SceInt32 *)&tempArgBlock[0]);
-			sceClibPrintf("a2: %d\n", *(SceInt32 *)&tempArgBlock[4]);
-		}
-		else
-			sceKernelDelayThread(15000);
+		sceKernelDelayThread(15000);
 	}
 }
 
 int module_start(SceSize argc, void *args) {
 	SCE_DBG_LOG_INFO("Sonic Overlay Started\n");
 
-	sceClibMemset(tempArgBlock, 0, 100);
+	SceKernelAllocMemBlockOptInternal opt;
+	sceClibMemset(&opt, 0, sizeof(SceKernelAllocMemBlockOptInternal));
+	opt.size = sizeof(SceKernelAllocMemBlockOptInternal);
+	opt.attr = 0x4020;
+	opt.flags = SCE_KERNEL_MEMORY_ACCESS_R_SHARED | SCE_KERNEL_MEMORY_ACCESS_W_SHARED;
 
-	SceUID dgThread = sceKernelCreateThread("SODispatchGetter", soDispatchGetter, 160, 0x1000, 0, 0, NULL);
+	sharedMemoryId = sceKernelAllocMemBlock("SonicOverlayDispatchBuffer", SCE_KERNEL_MEMBLOCK_TYPE_USER_RW, SO_DISPATCH_SHARED_MEM_SIZE, &opt);
+	sceKernelGetMemBlockBase(sharedMemoryId, &sharedMemory);
+	sceClibMemset(sharedMemory, 0, SO_DISPATCH_SHARED_MEM_SIZE);
+
+	soInitForVsh(sharedMemory, SO_DISPATCH_SHARED_MEM_SIZE);
+
+	SceUID dgThread = sceKernelCreateThread("SonicOverlayDispatchGetter", soDispatchGetter, 160, 0x1000, 0, 0, NULL);
 	sceKernelStartThread(dgThread, 0, NULL);
 
 	initHooks();

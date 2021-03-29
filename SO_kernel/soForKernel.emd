@@ -7,12 +7,12 @@ Library: soForVsh attr: syscall_export
 Library: soForVsh version: 1
 Library: soForVsh stubfile: "soForVsh_stub"
 Library: soForVsh nidsuffix: ""
-Library: soForVsh function: soPeekDispatchForVsh
 Library: soForVsh function: soWaitDispatchForVsh
-Library: soForVsh function: soGetDispatchForVsh
+Library: soForVsh function: soDispatchDoneForVsh
+Library: soForVsh function: soInitForVsh
 
 Library: soForKernel attr: auto_export
 Library: soForKernel version: 1
 Library: soForKernel stubfile: "soForKernel_stub"
 Library: soForKernel nidsuffix: ""
-Library: soForKernel function: soTestDraw
+Library: soForKernel function: soTestDrawForKernel

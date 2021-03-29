@@ -20,6 +20,8 @@ target_link_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   SceSysmemForDriver_stub
   SceThreadmgrForDriver_stub
+  SceSblACMgrForDriver_stub
+  SceSysclibForDriver_stub
 )
 
 VDSuiteCreateStubs(stubs soForKernel.emd
