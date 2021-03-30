@@ -27,7 +27,7 @@ typedef struct SoDispatch {
 
 /* KERNEL */
 
-SceBool soWaitDispatchForVsh();
+SceVoid soWaitDispatchForVsh();
 SceVoid soDispatchDoneForVsh();
 SceInt32 soInitForVsh(const ScePVoid buf, SceSize size);
 

@@ -22,6 +22,7 @@ target_link_libraries(${PROJECT_NAME}
   SceThreadmgrForDriver_stub
   SceSblACMgrForDriver_stub
   SceSysclibForDriver_stub
+  SceDebugForDriver_stub
 )
 
 VDSuiteCreateStubs(stubs soForKernel.emd

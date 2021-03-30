@@ -34,10 +34,11 @@ int soDispatchGetter(SceUInt32 args, void* argp)
 	while (1) {
 		soWaitDispatchForVsh();
 
-		sceClibPrintf("argBlockSize: %d\n", currentDispatch->dispatchId);
+		sceClibPrintf("argBlockSize: %d\n", currentDispatch->argBlockSize);
 		sceClibPrintf("a1: %d\n", *(SceInt32 *)&currentDispatch->argBlock[0]);
 		sceClibPrintf("a2: %d\n", *(SceInt32 *)&currentDispatch->argBlock[4]);
 
+		memset(currentDispatch, 0, 0xC);
 		soDispatchDoneForVsh();
 
 		sceKernelDelayThread(15000);
@@ -53,7 +54,7 @@ int module_start(SceSize argc, void *args) {
 	opt.attr = 0x4020;
 	opt.flags = SCE_KERNEL_MEMORY_ACCESS_R_SHARED | SCE_KERNEL_MEMORY_ACCESS_W_SHARED;
 
-	sharedMemoryId = sceKernelAllocMemBlock("SonicOverlayDispatchBuffer", SCE_KERNEL_MEMBLOCK_TYPE_USER_RW, SO_DISPATCH_SHARED_MEM_SIZE, &opt);
+	sharedMemoryId = sceKernelAllocMemBlock("SonicOverlayDispatchBuffer", SCE_KERNEL_MEMBLOCK_TYPE_USER_RW, SO_DISPATCH_SHARED_MEM_SIZE, NULL);
 	sceKernelGetMemBlockBase(sharedMemoryId, &sharedMemory);
 	sceClibMemset(sharedMemory, 0, SO_DISPATCH_SHARED_MEM_SIZE);
 
