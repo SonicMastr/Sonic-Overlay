@@ -54,7 +54,7 @@ int module_start(SceSize argc, void *args) {
 	opt.attr = 0x4020;
 	opt.flags = SCE_KERNEL_MEMORY_ACCESS_R_SHARED | SCE_KERNEL_MEMORY_ACCESS_W_SHARED;
 
-	sharedMemoryId = sceKernelAllocMemBlock("SonicOverlayDispatchBuffer", SCE_KERNEL_MEMBLOCK_TYPE_USER_RW, SO_DISPATCH_SHARED_MEM_SIZE, NULL);
+	sharedMemoryId = sceKernelAllocMemBlock("SonicOverlayDispatchBuffer", SCE_KERNEL_MEMBLOCK_TYPE_USER_RW, SO_DISPATCH_SHARED_MEM_SIZE, &opt);
 	sceKernelGetMemBlockBase(sharedMemoryId, &sharedMemory);
 	sceClibMemset(sharedMemory, 0, SO_DISPATCH_SHARED_MEM_SIZE);
 
