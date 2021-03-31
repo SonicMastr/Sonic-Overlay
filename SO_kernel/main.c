@@ -25,9 +25,9 @@ static SceBool dispatchPending = SCE_FALSE;
 static SceUID mappedBlockId = SCE_UID_INVALID_UID;
 static ScePVoid kernelSharedMem = SCE_NULL;
 static SoModuleInfo soModuleInfo[SO_MAX_MODULES];
-static SceChar8 soRenderOrder[SO_MAX_MODULES];
-static SceChar8 soRenderCount;
-static SceChar8 soRenderIndex = 0;
+static SceInt8 soRenderOrder[SO_MAX_MODULES];
+static SceInt8 soRenderCount;
+static SceInt8 soRenderIndex = 0;
 
 SceVoid soSortModuleInfo()
 {
@@ -63,7 +63,7 @@ SceVoid soSortModuleInfo()
 	//sceDebugPrintf("Render Count: %d\n", (SceInt32)soRenderCount);
 }
 
-SceVoid soWaitRenderQueueForKernel(SceChar8 id)
+SceVoid soWaitRenderQueueForKernel(SceInt8 id)
 {
 	sceKernelWaitSema(queueSem[id], 1, NULL);
 	sceKernelSignalSema(queueSem[id], 1);
@@ -107,7 +107,7 @@ SceInt32 soInitForVsh(const ScePVoid buf, SceSize size)
 	return SCE_OK;
 }
 
-SceVoid soTestDrawFinishForKernel(SceChar8 id)
+SceVoid soTestDrawFinishForKernel(SceInt8 id)
 {
 	if (mappedBlockId < 0)
 		return SO_ERROR_NOT_INITIALIZED;
@@ -127,7 +127,7 @@ SceVoid soTestDrawFinishForKernel(SceChar8 id)
 	sceKernelSignalSema(queueSem[soRenderOrder[soRenderIndex]], 1);
 }
 
-SceVoid soTestDrawForKernel(SceChar8 id)
+SceVoid soTestDrawForKernel(SceInt8 id)
 {
 	if (mappedBlockId < 0)
 		return SO_ERROR_NOT_INITIALIZED;
@@ -147,7 +147,7 @@ SceVoid soTestDrawForKernel(SceChar8 id)
 	sceKernelSignalSema(freeSem, 1);
 }
 
-SceChar8 soRegisterModuleForKernel(SceChar8 priority)
+SceInt8 soRegisterModuleForKernel(SceInt8 priority)
 {
 	if (priority < 1 || priority > 100)
 		return SO_ERROR_INVALID_ARGUMENT;
@@ -176,7 +176,7 @@ SceChar8 soRegisterModuleForKernel(SceChar8 priority)
 	return soModuleInfo[i].id;
 }
 
-SceChar8 soRemoveModuleForKernel(SceChar8 id)
+SceInt8 soRemoveModuleForKernel(SceInt8 id)
 {
 	if (id < 0 || id >= SO_MAX_MODULES || soModuleInfo[id].id == -1)
 		return SO_ERROR_INVALID_ARGUMENT;

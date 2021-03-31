@@ -3,10 +3,10 @@
 
 #include <scetypes.h>
 
-SceVoid soTestDrawForKernel(SceChar8 id);
-SceChar8 soRegisterModuleForKernel(SceChar8 priority);
-SceChar8 soRemoveModuleForKernel(SceChar8 id);
-SceVoid soTestDrawFinishForKernel(SceChar8 id);
-SceVoid soWaitRenderQueueForKernel(SceChar8 id);
+SceVoid soTestDrawForKernel(SceInt8 id);
+SceInt8 soRegisterModuleForKernel(SceInt8 priority);
+SceInt8 soRemoveModuleForKernel(SceInt8 id);
+SceVoid soTestDrawFinishForKernel(SceInt8 id);
+SceVoid soWaitRenderQueueForKernel(SceInt8 id);
 
 #endif

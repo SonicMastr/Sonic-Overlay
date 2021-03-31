@@ -15,8 +15,8 @@ typedef enum soError {
 };
 
 typedef struct SoModuleInfo {
-	SceChar8 id;
-	SceChar8 priority;
+	SceInt8 id;
+	SceInt8 priority;
 } SoModuleInfo;
 
 typedef enum SoDispatchId {
