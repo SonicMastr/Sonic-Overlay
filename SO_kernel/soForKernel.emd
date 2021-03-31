@@ -16,3 +16,7 @@ Library: soForKernel version: 1
 Library: soForKernel stubfile: "soForKernel_stub"
 Library: soForKernel nidsuffix: ""
 Library: soForKernel function: soTestDrawForKernel
+Library: soForKernel function: soRegisterModuleForKernel
+Library: soForKernel function: soRemoveModuleForKernel
+Library: soForKernel function: soTestDrawFinishForKernel
+Library: soForKernel function: soWaitRenderQueueForKernel

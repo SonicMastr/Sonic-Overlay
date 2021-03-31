@@ -29,8 +29,6 @@ int soDispatchGetter(SceUInt32 args, void* argp)
 	SceSize argBlockSize;
 	SoDispatch *currentDispatch = (SoDispatch *)sharedMemory;
 
-	sceKernelDelayThread(20000000);
-
 	while (1) {
 		soWaitDispatchForVsh();
 

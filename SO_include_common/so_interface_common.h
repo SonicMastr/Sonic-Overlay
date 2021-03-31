@@ -3,7 +3,7 @@
 
 #include <scetypes.h>
 
-#define SO_DISPATCH_MAGIC 0x497E0F1E
+#define SO_DISPATCH_MAGIC 0x534F4450
 #define SO_DISPATCH_SHARED_MEM_SIZE 0x1000
 
 typedef enum soError {
@@ -13,6 +13,11 @@ typedef enum soError {
 	SO_ERROR_NOT_INITIALIZED = -1003
 
 };
+
+typedef struct SoModuleInfo {
+	SceChar8 id;
+	SceChar8 priority;
+} SoModuleInfo;
 
 typedef enum SoDispatchId {
 	SO_DISPATCH_ID_TEST_DRAW
