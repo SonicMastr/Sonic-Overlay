@@ -3,7 +3,7 @@
 
 #include <scetypes.h>
 
-#define SO_DISPATCH_MAGIC 0x534F4450
+#define SO_DISPATCH_MAGIC 0x497E0F1E
 #define SO_DISPATCH_SHARED_MEM_SIZE 0x1000
 
 typedef enum soError {
