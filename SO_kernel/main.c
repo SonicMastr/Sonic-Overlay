@@ -20,13 +20,13 @@
 
 #define SO_MAX_MODULES 25
 
-static SceUID reqSem, freeSem, finSem, queueSem[SO_MAX_MODULES];
+static SceUID reqSem, freeSem, finSem, beginSem, queueSem[SO_MAX_MODULES];
 static SceBool dispatchPending = SCE_FALSE;
 static SceUID mappedBlockId = SCE_UID_INVALID_UID;
 static ScePVoid kernelSharedMem = SCE_NULL;
 static SoModuleInfo soModuleInfo[SO_MAX_MODULES];
 static SceInt8 soRenderOrder[SO_MAX_MODULES];
-static SceInt8 soRenderCount;
+static SceInt8 soRenderCount, soLastID;
 static SceInt8 soRenderIndex = 0;
 
 SceVoid soSortModuleInfo()
@@ -66,7 +66,7 @@ SceVoid soSortModuleInfo()
 SceVoid soWaitRenderQueueForKernel(SceInt8 id)
 {
 	sceKernelWaitSema(queueSem[id], 1, NULL);
-	sceKernelSignalSema(queueSem[id], 1);
+	sceKernelWaitSema(beginSem, 1, NULL);
 	//sceDebugPrintf("Render ID %d recieved Signal!\n", (SceInt32)id);
 	sceKernelSignalSema(reqSem, 1);
 }
@@ -111,29 +111,35 @@ SceVoid soTestDrawFinishForKernel(SceInt8 id)
 {
 	if (mappedBlockId < 0)
 		return SO_ERROR_NOT_INITIALIZED;
-	if (soRenderOrder[soRenderIndex] != id)
-		return SO_ERROR_INVALID_ARGUMENT;
+	//if (soRenderOrder[soRenderIndex] != id)
+	//	return SO_ERROR_INVALID_ARGUMENT;
 	sceKernelWaitSema(reqSem, 1, NULL);
 	// sceDebugPrintf("Render Index: %d\n", (SceInt32)soRenderIndex);
 	// sceDebugPrintf("Render ID: %d\n", (SceInt32)soRenderOrder[soRenderIndex]);
-	sceKernelWaitSema(queueSem[soRenderOrder[soRenderIndex]], 1, NULL);
 	soRenderIndex++;
 	if (soRenderCount == 1 || soRenderIndex == soRenderCount)
 	{
 		sceKernelSignalSema(finSem, 1);
 		soRenderIndex = 0;
-		sceKernelWaitSema(finSem, 1, NULL);
+		if (sceKernelPollSema(finSem, 1) < 0) {
+			sceKernelWaitSema(reqSem, 1, NULL);
+		}
 	}
 	sceKernelSignalSema(queueSem[soRenderOrder[soRenderIndex]], 1);
+	sceKernelSignalSema(beginSem, 1);
 }
 
 SceVoid soTestDrawForKernel(SceInt8 id)
 {
-	if (mappedBlockId < 0)
-		return SO_ERROR_NOT_INITIALIZED;
-	if (soRenderOrder[soRenderIndex] != id)
-		return SO_ERROR_INVALID_ARGUMENT;
 	sceKernelWaitSema(reqSem, 1, NULL);
+	if (mappedBlockId < 0) {
+		sceKernelSignalSema(reqSem, 1);
+		return SO_ERROR_NOT_INITIALIZED;
+	}
+	if (soRenderOrder[soRenderIndex] != id) {
+		sceKernelSignalSema(reqSem, 1);
+		return SO_ERROR_INVALID_ARGUMENT;
+	}
 
 	SoDispatch *currentDispatch = (SoDispatch *)kernelSharedMem;
 
@@ -160,7 +166,7 @@ SceInt8 soRegisterModuleForKernel(SceInt8 priority)
 	while (i < SO_MAX_MODULES && soModuleInfo[i].id != -1)
 		i++;
 	if (i == SO_MAX_MODULES) {
-		sceKernelSignalSema(finSem, 1);
+		sceKernelSignalSema(reqSem, 1);
 		return -1004; // Too many modules registered
 	}
 	soModuleInfo[i].id = i;
@@ -169,10 +175,9 @@ SceInt8 soRegisterModuleForKernel(SceInt8 priority)
 	soSortModuleInfo();
 
 	queueSem[i] = sceKernelCreateSema("SonicOverlayQueueSem", SCE_KERNEL_SEMA_ATTR_TH_FIFO, 1, 1, NULL); // Create Queue Semaphore for ID
-	sceKernelWaitSema(queueSem[i], 1, NULL);
-	sceKernelSignalSema(queueSem[soRenderOrder[soRenderIndex]], 1);
-
-	sceKernelSignalSema(finSem, 1); // Done registering module. Continue with drawing
+	if (soRenderCount > 1)
+		sceKernelWaitSema(queueSem[i], 1, NULL);
+	sceKernelSignalSema(reqSem, 1);  // Done registering module. Continue with drawing
 	return soModuleInfo[i].id;
 }
 
@@ -181,27 +186,29 @@ SceInt8 soRemoveModuleForKernel(SceInt8 id)
 	if (id < 0 || id >= SO_MAX_MODULES || soModuleInfo[id].id == -1)
 		return SO_ERROR_INVALID_ARGUMENT;
 
-	if (soRenderCount < 1) // Can't Remove a module by itself if waiting for ending
+	if (soRenderCount != 1)
 		sceKernelWaitSema(finSem, 1, NULL); // Make sure no draw calls can be made while removing
 
-	//sceDebugPrintf("Removing Module ID %d\n", (SceInt32)id);
 	soModuleInfo[id].id = -1;
 	soModuleInfo[id].priority = -1;
 
-	sceKernelDeleteSema(queueSem[id]); // Delete Semaphore for ID
-
 	soSortModuleInfo();
 
-	sceKernelSignalSema(finSem, 1); // Done removing module. Continue with drawing
+	sceKernelDeleteSema(queueSem[id]); // Delete Semaphore for ID
+	queueSem[id] = -1;
+
+	sceKernelSignalSema(reqSem, 1); // Done removing module. Continue with drawing
 	return SCE_OK;
 }
 
 int module_start(SceSize argc, void *args) 
 {
 	memset(soModuleInfo, -1, sizeof(soModuleInfo));
+	memset(queueSem, -1, sizeof(queueSem));
 	reqSem = sceKernelCreateSema("SonicOverlayDispatchSem", SCE_KERNEL_SEMA_ATTR_TH_FIFO, 1, 1, NULL);
 	freeSem = sceKernelCreateSema("SonicOverlayFreeSem", SCE_KERNEL_SEMA_ATTR_TH_FIFO, 1, 1, NULL);
 	finSem = sceKernelCreateSema("SonicOverlayFinishedSem", SCE_KERNEL_SEMA_ATTR_TH_FIFO, 1, 1, NULL);
+	beginSem = sceKernelCreateSema("SonicOverlayEndSem", SCE_KERNEL_SEMA_ATTR_TH_FIFO, 1, 1, NULL);
 	sceKernelWaitSema(freeSem, 1, NULL);
 
 	return SCE_KERNEL_START_SUCCESS;
