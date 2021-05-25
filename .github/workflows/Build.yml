@@ -25,7 +25,7 @@ jobs:
       with:
           repository: SonicMastr/ci-base
           path: ci-base
-          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          token: ${{ secrets.CI_TOKEN }}
           
     - name: Install VDSuite
       run: |
