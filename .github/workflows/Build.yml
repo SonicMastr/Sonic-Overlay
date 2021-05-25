@@ -46,8 +46,8 @@ jobs:
 
     - name: Build
       run: |
-        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target stubs.target -j$(nproc)
-        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target all -j$(nproc)
+        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target stubs.target -j %NUMBER_OF_PROCESSORS%
+        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target all -j %NUMBER_OF_PROCESSORS%
     
     - name: Upload
       uses: actions/upload-artifact@v2
