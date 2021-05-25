@@ -56,7 +56,7 @@ add_library(${PROJECT_NAME} MODULE
 
 include_directories(SYSTEM
   ${VDSUITE_USER_INCLUDE_DIRECTORIES}
-  ${VDSUITE_STANDARD_INCLUDE_DIRECTORIES}
+  ${PSP2_SNC_STANDARD_INCLUDE_DIRECTORIES}
   include
   ../SO_include_common
 )
@@ -69,13 +69,15 @@ target_link_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   taihen_stub_weak
   taihenModuleUtils_stub_weak
-  SceSharedFb_stub_weak
-  SceGxmInternal_stub_weak
-  SceGxm_stub_weak
-  SceDbg_stub_weak
+  vita2d_sys_stub_weak
   SceSysmem_stub_weak
   SceLibKernel_stub_weak
+  SceGxm_stub_weak
+  SceGxmInternal_stub_weak
+  SceDbg_stub_weak
+  SceSharedFb_stub_weak
   SceThreadmgr_stub_weak
+  SceModulemgr_stub_weak
   ${CMAKE_CURRENT_BINARY_DIR}/../SO_kernel/stubs/libsoForVsh_stub.a
 )
 
