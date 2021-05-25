@@ -1,0 +1,53 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CMAKE_GENERATOR: MinGW Makefiles
+  SCE_ROOT_DIR: ${{ github.workspace }}/ci-base/SCE
+  SCE_PSP2_SDK_DIR: ${{ github.workspace }}/ci-base/sdk
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Checkout CI base
+      uses: actions/checkout@v2
+      with:
+          repository: SonicMastr/ci-base
+          path: ci-base
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          
+    - name: Install VDSuite
+      run: |
+          $ProgressPreference = "SilentlyContinue"
+          "psp2-cmake-toolchains","cmake-modules","toolchain"
+            | ForEach-Object {
+                $base_path = "https://bin.shotatoshounenwachigau.moe/vdsuite"
+                Invoke-WebRequest -Uri "$base_path/vdsuite-$_-latest.zip" -OutFile "$_.zip"
+                Expand-Archive -Path "$_.zip" -DestinationPath ${{ github.workspace }}/ci-base
+              }
+          pip install lxml
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+    
+    - name: Upload
+    - uses: actions/upload-artifact@v2
+      with:
+        name: my-artifact
+        path: |
+          ${{github.workspace}}/build/*.skprx
+          ${{github.workspace}}/build/*.suprx
+      
