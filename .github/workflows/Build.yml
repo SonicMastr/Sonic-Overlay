@@ -33,7 +33,7 @@ jobs:
     - name: Install VDSuite
       run: |
           $ProgressPreference = "SilentlyContinue"
-          "psp2-cmake-toolchains","cmake-modules","toolchain"
+          "psp2-cmake-toolchains","cmake-modules","toolchain","libraries"
             | ForEach-Object {
                 $base_path = "https://bin.shotatoshounenwachigau.moe/vdsuite"
                 Invoke-WebRequest -Uri "$base_path/vdsuite-$_-latest.zip" -OutFile "$_.zip"
