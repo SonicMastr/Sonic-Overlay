@@ -52,8 +52,8 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
-        name: my-artifact
+        name: autobuilds
         path: |
-          ${{github.workspace}}/build/*.skprx
-          ${{github.workspace}}/build/*.suprx
+          ${{github.workspace}}/build/SO_kernel/soForKernel.skprx
+          ${{github.workspace}}/build/SO_user_shell/soForVsh.suprx
       
