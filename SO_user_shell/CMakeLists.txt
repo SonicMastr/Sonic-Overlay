@@ -69,7 +69,6 @@ target_link_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   taihen_stub_weak
   taihenModuleUtils_stub_weak
-  vita2d_sys_stub_weak
   SceSysmem_stub_weak
   SceLibKernel_stub_weak
   SceGxm_stub_weak

@@ -38,8 +38,6 @@ int soDispatchGetter(SceUInt32 args, void* argp)
 
 		memset(currentDispatch, 0, 0xC);
 		soDispatchDoneForVsh();
-
-		sceKernelDelayThread(15000);
 	}
 }
 
